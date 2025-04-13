@@ -30,7 +30,7 @@ const app = express();
 app.use(
   cors({
     // origin:"http://0.0.0.0:5173",
-    origin: process.envCORS_ORIGIN,
+    origin: process.env.CORS_ORIGIN,
     credentials: true,
   })
 );
@@ -77,7 +77,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: process.envCORS_ORIGIN, // Adjust this to match your frontend
+    origin: process.env.CORS_ORIGIN, // Adjust this to match your frontend
     methods: ["GET", "POST"],
   },
 });
