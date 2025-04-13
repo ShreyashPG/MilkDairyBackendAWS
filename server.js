@@ -21,6 +21,7 @@ import transactionRouter from "./routes/transactionRouter.js";
 import onlineCustomerRouter from "./routes/onlinecustomerRouter.js";
 import onlineOrderRouter from "./routes/onlineOrderRouter.js";
 
+
 // ✅ Import required modules for Socket.io
 import { Server } from "socket.io";
 import http from "http";
@@ -28,8 +29,8 @@ import http from "http";
 const app = express();
 app.use(
   cors({
-    // origin:process.env.CORS_ORIGIN,
-    origin: process.env.CORS_ORIGIN,
+    // origin:"http://0.0.0.0:5173",
+    origin: process.envCORS_ORIGIN,
     credentials: true,
   })
 );
@@ -62,6 +63,8 @@ app.use("/api/v1/transaction", transactionRouter);
 app.use("/api/v1/otp-verification", onlineCustomerRouter);
 app.use("/api/v1/online-order" , onlineOrderRouter);
 
+
+
 // ✅ Cloudinary Configuration
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -74,7 +77,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: process.env.CORS_ORIGIN, // Adjust this to match your frontend
+    origin: process.envCORS_ORIGIN, // Adjust this to match your frontend
     methods: ["GET", "POST"],
   },
 });
