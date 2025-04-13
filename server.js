@@ -25,6 +25,9 @@ import onlineOrderRouter from "./routes/onlineOrderRouter.js";
 // ✅ Import required modules for Socket.io
 import { Server } from "socket.io";
 import http from "http";
+dotenv.config({
+  path: "./.env",
+});
 
 const app = express();
 app.use(
@@ -44,9 +47,7 @@ app.use(cookieParser());
 //     next();
 // });
 
-dotenv.config({
-  path: "./.env",
-});
+
 
 // Routes
 app.use("/api/v1/admin", adminRouter); // Prefixing all admin routes with /admin
