@@ -33,11 +33,22 @@ const login = asyncHandler(async (req, res) => {
     admin.refreshToken = refreshToken;
     await admin.save({ validateBeforeSave: false });
 
+    
+  //Following is the development setup
+    // const cookieOptions = {
+    //   httpOnly: true,
+    //   secure: false,
+    //   // sameSite: "Strict",
+    //   sameSite: "lax",
+    // };
+
+    //Following is the production setup
+    const isProduction = process.env.NODE_ENV === "production";
+
     const cookieOptions = {
       httpOnly: true,
-      secure: false,
-      // sameSite: "Strict",
-      sameSite: "lax",
+      secure: isProduction,
+      sameSite: isProduction ? "None" : "Lax",
     };
 
     return res
@@ -74,9 +85,21 @@ const logoutAdmin = asyncHandler(async (req, res) => {
     }
   );
 
+  // const options = {
+  //   httpOnly: true,
+  //   secure: true,
+  // };
+    //development setup
+  // const options = {
+  //   httpOnly: true,
+  //   secure: true,
+  // };
+  const isProduction = process.env.NODE_ENV === "production";
+
   const options = {
     httpOnly: true,
-    secure: true,
+    secure: isProduction,
+    sameSite: isProduction ? "None" : "Lax",
   };
 
   return res
