@@ -136,7 +136,7 @@ transactionRouter.get(
 
 
 transactionRouter.get(
-  "/ReportByFarmerId/:farmerId/:startDate/:endDate",
+  "/ReportByFarmerId/:farmerId/:start/:end",
   // authenticateAdmin,
   // authorizeRoleAdmin(["Admin"]),
   downloadReportByFarmerId
