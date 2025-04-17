@@ -32,8 +32,8 @@ dotenv.config({
 const app = express();
 app.use(
   cors({
-    origin:process.env.CORS_ORIGIN,
-    // origin: "http://localhost:5173",
+    // origin:process.env.CORS_ORIGIN,
+    origin: "https://milk-dairy-frontend-aws.vercel.app",
     credentials: true,
   })
 );
@@ -77,8 +77,8 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin:process.env.CORS_ORIGIN,
-    // origin: "http://localhost:5173", // Adjust this to match your frontend
+    // origin:process.env.CORS_ORIGIN,
+    origin: "https://milk-dairy-frontend-aws.vercel.app", // Adjust this to match your frontend
     methods: ["GET", "POST"],
   },
 });
