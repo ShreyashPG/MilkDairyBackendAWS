@@ -33,7 +33,9 @@ const app = express();
 app.use(
   cors({
     // origin:process.env.CORS_ORIGIN,
-    origin: "https://milk-dairy-frontend-aws.vercel.app",
+    origin: ["https://milk-dairy-frontend-aws.vercel.app",
+        "https://milkdairyfrontendaws-production.up.railway.app"
+    ], 
     credentials: true,
   })
 );
@@ -78,7 +80,9 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     // origin:process.env.CORS_ORIGIN,
-    origin: "https://milk-dairy-frontend-aws.vercel.app", // Adjust this to match your frontend
+    origin: ["https://milk-dairy-frontend-aws.vercel.app",
+      "https://milkdairyfrontendaws-production.up.railway.app"
+  ], 
     methods: ["GET", "POST"],
   },
 });
