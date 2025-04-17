@@ -33,8 +33,7 @@ const login = asyncHandler(async (req, res) => {
     admin.refreshToken = refreshToken;
     await admin.save({ validateBeforeSave: false });
 
-    
-  //Following is the development setup
+    //Following is the development setup
     // const cookieOptions = {
     //   httpOnly: true,
     //   secure: false,
@@ -85,11 +84,7 @@ const logoutAdmin = asyncHandler(async (req, res) => {
     }
   );
 
-  // const options = {
-  //   httpOnly: true,
-  //   secure: true,
-  // };
-    //development setup
+  //development setup
   // const options = {
   //   httpOnly: true,
   //   secure: true,

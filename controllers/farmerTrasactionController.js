@@ -1,3 +1,194 @@
+// // import express from 'express';
+// // import PDFDocument from 'pdfkit';
+// // import fs from 'fs';
+// // import path from 'path';
+// // import { Farmer } from '../model/Farmer.js';
+
+
+// // // router.get('/download-pdf/:mobileNumber'
+// //  export const farmerTransaction =  async (req, res) => {
+// //   try {
+// //     const { mobileNumber } = req.params;
+// //     const farmer = await Farmer.findOne({ mobileNumber });
+
+// //     if (!farmer) {
+// //       return res.status(404).json({ message: 'Farmer not found' });
+// //     }
+
+// //     const fileName = `Farmer_Report_${mobileNumber}.pdf`;
+// //     const pdfPath = path.join('reports', fileName);
+
+// //     const doc = new PDFDocument();
+// //     doc.pipe(fs.createWriteStream(pdfPath)); // Save locally
+
+// //     // -- Header Info --
+// //     doc.fontSize(18).text(`Farmer Report - ${farmer.farmerName}`, { align: 'center' });
+// //     doc.moveDown();
+// //     doc.fontSize(12).text(`Mobile: ${farmer.mobileNumber}`);
+// //     doc.text(`Address: ${farmer.address}`);
+// //     doc.text(`Joining Date: ${new Date(farmer.joiningDate).toDateString()}`);
+// //     doc.moveDown();
+
+// //     const grouped = { cow: [], buffalo: [] };
+// //     farmer.transaction.forEach(t => {
+// //       if (t.milkType === 'cow') grouped.cow.push(t);
+// //       else if (t.milkType === 'buffalo') grouped.buffalo.push(t);
+// //     });
+
+// //     let totalLiters = 0, totalAmount = 0;
+
+// //     for (const type of ['cow', 'buffalo']) {
+// //       doc.fontSize(14).text(`${type.toUpperCase()} Milk`, { underline: true });
+// //       doc.moveDown(0.5);
+
+// //       if (grouped[type].length === 0) {
+// //         doc.text('No transactions.\n');
+// //         continue;
+// //       }
+
+// //       let subLiters = 0, subAmount = 0;
+
+// //       grouped[type].forEach(t => {
+// //         const total = t.milkQuantity * t.pricePerLitre;
+// //         subLiters += t.milkQuantity;
+// //         subAmount += total;
+
+// //         doc.fontSize(11).text(`${new Date(t.transactionDate).toLocaleDateString()}  Qty: ${t.milkQuantity}L × ₹${t.pricePerLitre}/L = ₹${total.toFixed(2)}`);
+// //       });
+
+// //       totalLiters += subLiters;
+// //       totalAmount += subAmount;
+
+// //       doc.moveDown(0.3);
+// //       doc.fontSize(12).text(`Subtotal: ${subLiters.toFixed(2)} L | ₹${subAmount.toFixed(2)}\n`);
+// //     }
+
+// //     doc.fontSize(14).text('Grand Totals', { underline: true });
+// //     doc.text(`Total Milk: ${totalLiters.toFixed(2)} L`);
+// //     doc.text(`Total Amount: ₹${totalAmount.toFixed(2)}`);
+// //     doc.moveDown();
+
+// //     doc.fontSize(14).text('Loan Details', { underline: true });
+// //     doc.text(`Total Loan Remaining: ₹${farmer.totalLoanRemaining.toFixed(2)}`);
+
+// //     doc.end();
+
+// //     // Wait for file creation, then send it
+// //     doc.on('finish', () => {
+// //       res.download(pdfPath, fileName, (err) => {
+// //         if (err) console.error('Download error:', err);
+// //       });
+// //     });
+
+// //   } catch (err) {
+// //     console.error(err);
+// //     res.status(500).json({ message: 'Error generating PDF' });
+// //   }
+// // }
+
+// import express from 'express';
+// import PDFDocument from 'pdfkit';
+// import fs from 'fs';
+// import path from 'path';
+// import { Farmer } from '../model/Farmer.js';
+
+// // Create the 'reports' directory if it doesn't exist
+// const reportsDirectory = path.join(process.cwd(), 'reports');
+// if (!fs.existsSync(reportsDirectory)) {
+//   fs.mkdirSync(reportsDirectory);
+// }
+
+// // router.get('/download-pdf/:mobileNumber'
+// export const farmerTransaction = async (req, res) => {
+//   try {
+//     const { mobileNumber } = req.params;
+//     const farmer = await Farmer.findOne({ mobileNumber });
+
+//     if (!farmer) {
+//       return res.status(404).json({ message: 'Farmer not found' });
+//     }
+
+//     const fileName = `Farmer_Report_${mobileNumber}.pdf`;
+//     const pdfPath = path.join(reportsDirectory, fileName);
+
+//     const doc = new PDFDocument();
+//     const writeStream = fs.createWriteStream(pdfPath);
+//     doc.pipe(writeStream); // Save locally
+
+//     // -- Header Info --
+//     doc.fontSize(18).text(`Farmer Report - ${farmer.farmerName}`, { align: 'center' });
+//     doc.moveDown();
+//     doc.fontSize(12).text(`Mobile: ${farmer.mobileNumber}`);
+//     doc.text(`Address: ${farmer.address}`);
+//     doc.text(`Joining Date: ${new Date(farmer.joiningDate).toDateString()}`);
+//     doc.moveDown();
+
+//     const grouped = { cow: [], buffalo: [] };
+//     farmer.transaction.forEach(t => {
+//       if (t.milkType === 'Cow') grouped.cow.push(t);
+//       else if (t.milkType === 'Buffalo') grouped.buffalo.push(t);
+//     });
+
+//     let totalLiters = 0, totalAmount = 0;
+
+//     for (const type of ['cow', 'buffalo']) {
+//       doc.fontSize(14).text(`${type.toUpperCase()} Milk`, { underline: true });
+//       doc.moveDown(0.5);
+
+//       if (grouped[type].length === 0) {
+//         doc.text('No transactions.\n');
+//         continue;
+//       }
+
+//       let subLiters = 0, subAmount = 0;
+
+//       grouped[type].forEach(t => {
+//         const total = t.milkQuantity * t.pricePerLitre;
+//         subLiters += t.milkQuantity;
+//         subAmount += total;
+
+//         doc.fontSize(11).text(`${new Date(t.transactionDate).toLocaleDateString()}  Qty: ${t.milkQuantity}L × ₹${t.pricePerLitre}/L = ₹${total.toFixed(2)}`);
+//       });
+
+//       totalLiters += subLiters;
+//       totalAmount += subAmount;
+
+//       doc.moveDown(0.3);
+//       doc.fontSize(12).text(`Subtotal: ${subLiters.toFixed(2)} L | ₹${subAmount.toFixed(2)}\n`);
+//     }
+
+//     doc.fontSize(14).text('Grand Totals', { underline: true });
+//     doc.text(`Total Milk: ${totalLiters.toFixed(2)} L`);
+//     doc.text(`Total Amount: ₹${totalAmount.toFixed(2)}`);
+//     doc.moveDown();
+
+//     doc.fontSize(14).text('Loan Details', { underline: true });
+//     doc.text(`Total Loan Remaining: ₹${farmer.totalLoanRemaining.toFixed(2)}`);
+
+//     doc.end();
+
+//     // Wait for file creation, then send it
+//     writeStream.on('finish', () => {
+//       res.download(pdfPath, fileName, (err) => {
+//         if (err) {
+//           console.error('Download error:', err);
+//           res.status(500).json({ message: 'Error downloading PDF' });
+//         }
+//         // Clean up the generated PDF file after download
+//         fs.unlink(pdfPath, (unlinkErr) => {
+//           if (unlinkErr) {
+//             console.error('Error deleting PDF:', unlinkErr);
+//           }
+//         });
+//       });
+//     });
+
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Error generating PDF' });
+//   }
+// };
+
 
 import express from 'express';
 import PDFDocument from 'pdfkit';
@@ -304,6 +495,82 @@ doc.font('Helvetica').text('Loan Remaining:', 300, currentY)
 
 
 
+// import express from 'express';
+// import PDFDocument from 'pdfkit';
+// import { Farmer } from '../model/Farmer.js';
+
+// export const downloadAllFarmersPDF = async (req, res) => {
+//   try {
+//     const farmers = await Farmer.find();
+
+//     if (farmers.length === 0) {
+//       return res.status(404).json({ message: 'No farmers found' });
+//     }
+
+//     const fileName = 'All_Farmers_Report.pdf';
+//     res.setHeader('Content-Type', 'application/pdf');
+//     res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+
+//     const doc = new PDFDocument({ size: 'A4', margin: 50 });
+//     doc.pipe(res);
+
+//     // Helper: Create report for a single farmer
+//     const generateFarmerReport = (doc, farmer) => {
+//       doc.addPage();
+
+//       doc.fontSize(18).fillColor('#003366').text(`Farmer: ${farmer.farmerName}`, { align: 'center' });
+//       doc.moveDown();
+//       doc.fontSize(12).fillColor('black');
+//       doc.text(`Mobile: ${farmer.mobileNumber}`);
+//       doc.text(`Address: ${farmer.address}`);
+//       doc.text(`Joining Date: ${new Date(farmer.joiningDate).toDateString()}`);
+//       doc.moveDown();
+
+//       doc.fontSize(14).fillColor('#003366').text('Transactions:', { underline: true });
+//       doc.moveDown(0.5);
+
+//       if (!farmer.transaction || farmer.transaction.length === 0) {
+//         doc.fontSize(10).text('No transactions found.');
+//         return;
+//       }
+
+//       doc.fontSize(10).fillColor('black');
+//       farmer.transaction.forEach(t => {
+//         const date = new Date(t.transactionDate).toLocaleDateString();
+//         const amount = t.milkQuantity * t.pricePerLitre;
+//         doc.text(
+//           `${date} - ${t.transactionTime} - ${t.milkType.toUpperCase()} - ${t.milkQuantity}L @ ₹${t.pricePerLitre} = ₹${amount.toFixed(2)}`
+//         );
+//       });
+
+//       doc.moveDown();
+
+//       // Loan Summary
+//       doc.fontSize(12).fillColor('#003366').text('Loan Summary:', { underline: true });
+//       doc.fontSize(10).fillColor('black');
+//       doc.text(`Total Loan: ₹${farmer.totalLoan.toFixed(2)}`);
+//       doc.text(`Loan Paid Back: ₹${farmer.totalLoanPaidBack.toFixed(2)}`);
+//       doc.text(`Loan Remaining: ₹${farmer.totalLoanRemaining.toFixed(2)}`);
+//     };
+
+//     // First Page Title
+//     doc.fontSize(22).fillColor('#003366').text('All Farmers Milk Report', { align: 'center' });
+//     doc.moveDown();
+//     doc.fontSize(12).fillColor('black').text(`Generated on: ${new Date().toLocaleString()}`);
+//     doc.addPage(); // Move to a new page after the title
+
+//     // Loop over farmers and append their sections
+//     for (const farmer of farmers) {
+//       generateFarmerReport(doc, farmer);
+//     }
+
+//     doc.end();
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Error generating PDF' });
+//   }
+// };
+
 
 export const downloadAllFarmersPDF = async (req, res) => {
   try {
@@ -547,7 +814,6 @@ export const downloadAllFarmersPDF = async (req, res) => {
 };
 
 
- 
 
 export const downloadReportByFarmerId = async (req, res) => {
   try {

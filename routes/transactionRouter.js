@@ -96,8 +96,36 @@ transactionRouter.get("/download-report/:mobile",  async (req, res) => {
   }
 } );
 
+// For Excel
+// import fs from "fs";
+// transactionRouter.get("/report/excel/:mobile", async (req, res) => {
+//   try {
+//     const { excelPath } = await generateFarmerReport(req.params.mobile);
+//     res.download(excelPath, "report.xlsx", (err) => {
+//       if (!err) fs.unlinkSync(excelPath); // optional cleanup
+//     });
+//   } catch (e) {
+//     res.status(500).send("Failed to generate Excel: " + e.message);
+//   }
+// });
+
+// // For PDF
+// transactionRouter.get("/report/pdf/:mobile", async (req, res) => {
+//   try {
+//     const { pdfPath } = await generateFarmerReport(req.params.mobile);
+
+//     res.download(pdfPath, "report.pdf", (err) => {
+//       if (!err) fs.unlinkSync(pdfPath); // optional cleanup
+//     });
+//   } catch (e) {
+//     res.status(500).send("Failed to generate PDF: " + e.message);
+//   }
+// });
+
+
 transactionRouter.get(
   "/download-pdf/:mobileNumber",
+
   farmerTransaction
 );
 
@@ -106,19 +134,12 @@ transactionRouter.get(
   downloadAllFarmersPDF
 );
 
+
 transactionRouter.get(
   "/ReportByFarmerId/:farmerId/:day",
   // authenticateAdmin,
   // authorizeRoleAdmin(["Admin"]),
   downloadReportByFarmerId
 );
-
-// transactionRouter.get(
-//   "/ReportByFarmerId/:farmerId/:day",
-//   // authenticateSubAdmin,
-//   // authorizeRoleAdmin(["subAdmin"]),
-//   downloadReportByFarmerId
-// );
-
 
 export default transactionRouter;

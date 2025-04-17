@@ -44,12 +44,8 @@ const subAdminLogin = asyncHandler(async (req, res) => {
     subAdmin.refreshToken = refreshToken;
     await subAdmin.save({ validateBeforeSave: false });
 
-    // const cookieOptions = {
-    //   httpOnly: true,
-    //   secure: true,
-    //   sameSite: "Strict",
-    // };
-      //Following is the development setup
+
+    //Following is the development setup
     // const cookieOptions = {
     //   httpOnly: true,
     //   secure: true,
@@ -64,7 +60,6 @@ const subAdminLogin = asyncHandler(async (req, res) => {
       secure: isProduction,
       sameSite: isProduction ? "None" : "Lax",
     };
-
 
     return res
       .status(200)
@@ -95,27 +90,20 @@ const subAdminLogout = asyncHandler(async (req, res) => {
 
   await SubAdmin.findByIdAndUpdate(subAdmin._id, { refreshToken: null });
 
+  //development setup
   // const cookieOptions = {
   //   httpOnly: true,
   //   secure: true,
   //   sameSite: "Strict",
   // };
 
-    //development setup
-  // const cookieOptions = {
-  //   httpOnly: true,
-  //   secure: true,
-  //   sameSite: "Strict",
-  // };
+    const isProduction = process.env.NODE_ENV === "production";
 
-  const isProduction = process.env.NODE_ENV === "production";
-
-  const cookieOptions = {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "None" : "Lax",
-  };
-
+      const cookieOptions = {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? "None" : "Lax",
+      };
 
   return res
     .status(200)
