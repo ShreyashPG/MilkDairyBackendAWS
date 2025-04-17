@@ -86,7 +86,7 @@ const io = new Server(server, {
     methods: ["GET", "POST"],
   },
 });
-console.log(process.env.CORS_ORIGIN);
+// console.log(process.env.CORS_ORIGIN);
 
 // ✅ Handle WebSocket Connections
 io.on("connection", (socket) => {
