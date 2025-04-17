@@ -814,6 +814,230 @@ export const downloadAllFarmersPDF = async (req, res) => {
 };
 
 
+export const downloadAllFarmersPDFByDate = async (req, res) => {
+  try {
+    const { start, end } = req.params;
+    const farmers = await Farmer.find();
+
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
+    if (farmers.length === 0) {
+      return res.status(404).json({ message: 'No farmers found' });
+    }
+
+    const fileName = 'All_Farmers_Report.pdf';
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+
+    const PDFDocument = require('pdfkit');
+    const doc = new PDFDocument({ size: 'A4', margin: 50 });
+    doc.pipe(res);
+
+    // Header
+    doc.rect(50, 40, 495, 70).fillAndStroke('#F0F8FF', '#003366');
+    doc.fontSize(22).fillColor('#003366')
+      .text('ALL FARMERS MILK REPORT', 50, 55, { align: 'center' });
+    doc.fontSize(12).fillColor('#003366')
+      .text(`Generated on: ${new Date().toLocaleString()}`, 50, 85, { align: 'center' });
+
+    doc.moveDown(2);
+
+    const generateStyledFarmerReport = (doc, farmer) => {
+      doc.addPage();
+
+      doc.roundedRect(50, doc.y, 495, 70, 5).fillAndStroke('#E6F2FF', '#003366');
+
+      const infoStartY = doc.y + 15;
+      doc.fillColor('#003366').fontSize(14)
+        .text(`Farmer: ${farmer.farmerName}`, 70, infoStartY);
+      doc.fontSize(11)
+        .text(`Mobile: ${farmer.mobileNumber}`, 70, infoStartY + 20)
+        .text(`Address: ${farmer.address}`, 300, infoStartY + 20)
+        .text(`Joining Date: ${new Date(farmer.joiningDate).toDateString()}`, 70, infoStartY + 40);
+
+      doc.moveDown(4);
+
+      doc.fontSize(16).fillColor('#003366')
+        .text('TRANSACTION SUMMARY', { align: 'center', underline: true });
+      doc.moveDown();
+
+      const groupedTransactions = {
+        morning: { cow: [], buffalo: [] },
+        evening: { cow: [], buffalo: [] }
+      };
+
+      farmer.transaction.forEach(t => {
+        const timeOfDay = t.transactionTime?.toLowerCase() ||
+          (new Date(t.transactionDate).getHours() < 12 ? 'morning' : 'evening');
+        const milkType = t.milkType.toLowerCase();
+
+        if (timeOfDay === 'morning') {
+          if (milkType === 'cow') groupedTransactions.morning.cow.push(t);
+          else groupedTransactions.morning.buffalo.push(t);
+        } else {
+          if (milkType === 'cow') groupedTransactions.evening.cow.push(t);
+          else groupedTransactions.evening.buffalo.push(t);
+        }
+      });
+
+      const drawTransactionTable = (title, transactions, startY) => {
+        if (transactions.length === 0) return startY;
+        if (startY > 680) {
+          doc.addPage();
+          startY = 50;
+        }
+
+        doc.fontSize(12).fillColor('#003366')
+          .text(title, 50, startY, { underline: true });
+
+        startY += 20;
+
+        doc.rect(50, startY, 495, 20).fillAndStroke('#003366', '#003366');
+        doc.fillColor('#FFFFFF').fontSize(10);
+        doc.text('Date', 55, startY + 6);
+        doc.text('Fat', 130, startY + 6);
+        doc.text('SNF', 175, startY + 6);
+        doc.text('Qty (L)', 220, startY + 6);
+        doc.text('Rate (₹)', 280, startY + 6);
+        doc.text('Amount (₹)', 350, startY + 6);
+        doc.text('Time', 430, startY + 6);
+
+        startY += 20;
+
+        let totalLiters = 0;
+        let totalAmount = 0;
+
+        transactions.forEach((t, index) => {
+          const amount = t.milkQuantity * t.pricePerLitre;
+          totalLiters += t.milkQuantity;
+          totalAmount += amount;
+
+          if (index % 2 === 0) {
+            doc.rect(50, startY, 495, 20).fillAndStroke('#F8F9FA', '#CCE5FF');
+          } else {
+            doc.rect(50, startY, 495, 20).fillAndStroke('#FFFFFF', '#CCE5FF');
+          }
+
+          doc.fillColor('#000000').fontSize(9);
+          doc.text(new Date(t.transactionDate).toLocaleDateString(), 55, startY + 6);
+          doc.text(t.fat?.toFixed(1) || 'N/A', 130, startY + 6);
+          doc.text(t.snf?.toFixed(1) || 'N/A', 175, startY + 6);
+          doc.text(t.milkQuantity.toFixed(2), 220, startY + 6);
+          doc.text(t.pricePerLitre.toFixed(2), 280, startY + 6);
+          doc.text(amount.toFixed(2), 350, startY + 6);
+          doc.text(t.transactionTime || 'N/A', 430, startY + 6);
+
+          startY += 20;
+        });
+
+        doc.rect(50, startY, 495, 22).fillAndStroke('#E6F2FF', '#003366');
+        doc.fillColor('#003366').fontSize(10).font('Helvetica-Bold');
+        doc.text('TOTAL', 55, startY + 6);
+        doc.text(totalLiters.toFixed(2), 220, startY + 6);
+        doc.text(totalAmount.toFixed(2), 350, startY + 6);
+
+        return startY + 30;
+      };
+
+      let currentY = doc.y;
+
+      if (groupedTransactions.morning.cow.length > 0) {
+        currentY = drawTransactionTable('MORNING - COW MILK', groupedTransactions.morning.cow, currentY);
+      }
+
+      if (groupedTransactions.morning.buffalo.length > 0) {
+        currentY = drawTransactionTable('MORNING - BUFFALO MILK', groupedTransactions.morning.buffalo, currentY);
+      }
+
+      if (groupedTransactions.evening.cow.length > 0) {
+        currentY = drawTransactionTable('EVENING - COW MILK', groupedTransactions.evening.cow, currentY);
+      }
+
+      if (groupedTransactions.evening.buffalo.length > 0) {
+        currentY = drawTransactionTable('EVENING - BUFFALO MILK', groupedTransactions.evening.buffalo, currentY);
+      }
+
+      if (currentY > 700) {
+        doc.addPage();
+        currentY = 50;
+      }
+
+      doc.moveDown();
+      doc.roundedRect(50, currentY, 495, 120, 5).fillAndStroke('#FFF8E1', '#FF9800');
+
+      let grandTotalLiters = 0;
+      let grandTotalAmount = 0;
+
+      Object.keys(groupedTransactions).forEach(timeKey => {
+        Object.keys(groupedTransactions[timeKey]).forEach(typeKey => {
+          groupedTransactions[timeKey][typeKey].forEach(t => {
+            grandTotalLiters += t.milkQuantity;
+            grandTotalAmount += t.milkQuantity * t.pricePerLitre;
+          });
+        });
+      });
+
+      doc.fontSize(14).fillColor('#003366')
+        .text('FINANCIAL SUMMARY', 50, currentY + 15, { align: 'center' });
+
+      currentY += 40;
+
+      doc.fontSize(10).fillColor('#000000');
+      doc.text(`Total Milk Quantity:`, 70, currentY)
+        .font('Helvetica-Bold').text(`${grandTotalLiters.toFixed(2)} liters`, 200, currentY)
+        .font('Helvetica').text('Total Loan:', 300, currentY)
+        .font('Helvetica-Bold').text(`₹${farmer.totalLoan.toFixed(2)}`, 430, currentY);
+
+      currentY += 15;
+
+      doc.font('Helvetica').text('Total Loan Paid Back:', 300, currentY)
+        .font('Helvetica-Bold').text(`₹${farmer.totalLoanPaidBack.toFixed(2)}`, 430, currentY);
+
+      currentY += 15;
+
+      doc.font('Helvetica').text('Loan Remaining:', 300, currentY)
+        .font('Helvetica-Bold').text(`₹${farmer.totalLoanRemaining.toFixed(2)}`, 430, currentY);
+
+      currentY += 20;
+
+      doc.font('Helvetica').text(`Total Amount:`, 70, currentY)
+        .font('Helvetica-Bold').text(`₹${grandTotalAmount.toFixed(2)}`, 200, currentY);
+
+      const pageCount = doc.bufferedPageRange().count;
+      const startIndex = pageCount - doc.page.index - 1;
+
+      for (let i = startIndex; i < pageCount; i++) {
+        doc.switchToPage(i);
+        doc.moveTo(50, 780).lineTo(545, 780).stroke('#003366');
+        doc.fontSize(8).fillColor('#666666')
+          .text(`Milkman Management System - Report generated on ${new Date().toLocaleString()}`, 50, 790);
+        doc.text(`Page ${i + 1}`, 450, 790);
+      }
+    };
+
+    for (const farmer of farmers) {
+      const filteredTransactions = farmer.transaction.filter(t => {
+        const tDate = new Date(t.transactionDate);
+        return tDate >= startDate && tDate <= endDate;
+      });
+
+      const clonedFarmer = {
+        ...farmer.toObject(),
+        transaction: filteredTransactions
+      };
+
+      generateStyledFarmerReport(doc, clonedFarmer);
+    }
+
+    doc.end();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error generating PDF' });
+  }
+};
+
+
 
 export const downloadReportByFarmerId = async (req, res) => {
   try {

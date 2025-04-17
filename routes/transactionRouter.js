@@ -11,7 +11,7 @@ import {
   generateFarmerReport
 } from "../controllers/transactionController.js";
 
-import { farmerTransaction, downloadAllFarmersPDF, downloadReportByFarmerId } from "../controllers/farmerTrasactionController.js";
+import { farmerTransaction, downloadAllFarmersPDF, downloadReportByFarmerId, downloadAllFarmersPDFByDate } from "../controllers/farmerTrasactionController.js";
 
 import {
   authenticateAdmin,
@@ -132,6 +132,10 @@ transactionRouter.get(
 transactionRouter.get(
   "/download-all-farmers-pdf",
   downloadAllFarmersPDF
+);
+transactionRouter.get(
+  "/Report-all-farmers-pdf/:start/:end",
+  downloadAllFarmersPDFByDate
 );
 
 
