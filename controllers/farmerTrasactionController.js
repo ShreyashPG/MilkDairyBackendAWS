@@ -830,7 +830,7 @@ export const downloadAllFarmersPDFByDate = async (req, res) => {
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
 
-    const PDFDocument = require('pdfkit');
+    // const PDFDocument = require('pdfkit');
     const doc = new PDFDocument({ size: 'A4', margin: 50 });
     doc.pipe(res);
 
